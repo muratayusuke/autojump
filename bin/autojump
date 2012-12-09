@@ -24,17 +24,17 @@ from __future__ import division, print_function
 import sys
 import os
 try:
-  import argparse
+    import argparse
 except ImportError:
-  sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-  import autojump_argparse as argparse
-  sys.path.pop()
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+    import autojump_argparse as argparse
+    sys.path.pop()
 from operator import itemgetter
 import re
 import shutil
 from tempfile import NamedTemporaryFile
 
-VERSION = 'release-v21-rc.2'
+VERSION = 'release-v21.1.2'
 MAX_KEYWEIGHT = 1000
 MAX_STORED_PATHS = 1000
 COMPLETION_SEPARATOR = '__'
@@ -114,11 +114,18 @@ class Database:
         """
         if os.path.exists(self.filename):
             try:
-                with open(self.filename, 'r') as f:
-                    for line in f.readlines():
-                        weight, path = line[:-1].split("\t", 1)
-                        path = decode(path, 'utf-8')
-                        self.data[path] = float(weight)
+                if sys.version_info >= (3, 0):
+                    with open(self.filename, 'r', encoding = 'utf-8') as f:
+                        for line in f.readlines():
+                            weight, path = line[:-1].split("\t", 1)
+                            path = decode(path, 'utf-8')
+                            self.data[path] = float(weight)
+                else:
+                    with open(self.filename, 'r') as f:
+                        for line in f.readlines():
+                            weight, path = line[:-1].split("\t", 1)
+                            path = decode(path, 'utf-8')
+                            self.data[path] = float(weight)
             except (IOError, EOFError):
                 self.load_backup(error_recovery)
         else:
